@@ -22,17 +22,16 @@ export const ResetPasswordForm: React.FC<ResetPasswordFormProps> = ({ onSuccess 
   const [checkingSession, setCheckingSession] = useState(true);
 
   useEffect(() => {
-    // Force logout first if user is authenticated
     const urlParams = new URLSearchParams(window.location.search);
+
     if (urlParams.get('force_logout') === 'true') {
-      supabase.auth.signOut().then(() => {
-        // Remove the force_logout parameter and check session
-        window.history.replaceState({}, '', '/auth?reset=true');
-        setTimeout(checkResetSession, 500);
-      });
-    } else {
-      checkResetSession();
+      urlParams.delete('force_logout');
+      const newQuery = urlParams.toString();
+      const newUrl = `${window.location.pathname}${newQuery ? `?${newQuery}` : ''}${window.location.hash}`;
+      window.history.replaceState({}, '', newUrl);
     }
+
+    checkResetSession();
   }, []);
 
   const checkResetSession = async () => {
@@ -96,8 +95,8 @@ export const ResetPasswordForm: React.FC<ResetPasswordFormProps> = ({ onSuccess 
       }
 
       setSuccess(true);
-      
-      // Redirect to login after 3 seconds
+
+      // Redirect to dashboard after 3 seconds
       setTimeout(() => {
         onSuccess();
       }, 3000);
@@ -181,7 +180,7 @@ export const ResetPasswordForm: React.FC<ResetPasswordFormProps> = ({ onSuccess 
                 Contraseña actualizada exitosamente
               </p>
               <p className="text-green-700 text-sm">
-                Serás redirigido al login en unos segundos para que puedas iniciar sesión con tu nueva contraseña.
+                Serás redirigido al dashboard en unos segundos para que puedas continuar con tu sesión.
               </p>
             </div>
           </div>
@@ -191,7 +190,7 @@ export const ResetPasswordForm: React.FC<ResetPasswordFormProps> = ({ onSuccess 
           onClick={onSuccess}
           className="w-full bg-green-600 text-white py-3 px-4 rounded-lg font-semibold hover:bg-green-700 transition-colors duration-200"
         >
-          Ir al Login Ahora
+          Ir al Dashboard Ahora
         </button>
       </div>
     );

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 import { LandingPage } from '../landing/LandingPage';
 import { LoginForm } from './LoginForm';
 import { RegisterForm } from './RegisterForm';
@@ -10,6 +11,7 @@ import { useAuth } from '../../contexts/AuthContext';
 export const AuthPage: React.FC = () => {
   const [currentView, setCurrentView] = useState<'landing' | 'login' | 'register' | 'confirmation' | 'reset'>('landing');
   const { pendingEmailConfirmation, isAuthenticated } = useAuth();
+  const navigate = useNavigate();
 
   // Check if this is a password reset flow
   React.useEffect(() => {
@@ -19,13 +21,27 @@ export const AuthPage: React.FC = () => {
     }
   }, []);
 
-  // If user is authenticated and trying to access reset, log them out first
+  // If the reset flow is active and the URL doesn't include the force logout flag,
+  // append it without forcing a full navigation so Supabase tokens stay intact.
   React.useEffect(() => {
-    const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.get('reset') === 'true' && isAuthenticated) {
-      // Force logout to handle password reset
-      window.location.href = '/auth?reset=true&force_logout=true';
+    if (!isAuthenticated) {
+      return;
     }
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const isResetFlow = urlParams.get('reset') === 'true';
+    const hasForceLogoutFlag = urlParams.get('force_logout') === 'true';
+
+    if (!isResetFlow || hasForceLogoutFlag) {
+      return;
+    }
+
+    urlParams.set('force_logout', 'true');
+
+    const newQuery = urlParams.toString();
+    const newUrl = `${window.location.pathname}${newQuery ? `?${newQuery}` : ''}${window.location.hash}`;
+
+    window.history.replaceState({}, '', newUrl);
   }, [isAuthenticated]);
 
   // Si hay confirmación pendiente, mostrar la pantalla de confirmación
@@ -93,11 +109,17 @@ export const AuthPage: React.FC = () => {
               </p>
             </div>
 
-            <ResetPasswordForm 
+            <ResetPasswordForm
               onSuccess={() => {
-                // Clear the reset parameter and go to login
-                window.history.replaceState({}, '', '/auth');
-                setCurrentView('login');
+                // Clear the reset flags from the URL before redirecting to the dashboard
+                const params = new URLSearchParams(window.location.search);
+                params.delete('reset');
+                params.delete('force_logout');
+                const newQuery = params.toString();
+                const newUrl = `${window.location.pathname}${newQuery ? `?${newQuery}` : ''}${window.location.hash}`;
+                window.history.replaceState({}, '', newUrl);
+
+                navigate('/dashboard', { replace: true });
               }}
             />
           </motion.div>

@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { AuthPage } from './components/auth/AuthPage';
 import { DashboardController } from './components/common/DashboardController';
@@ -7,6 +7,11 @@ import { LoadingSpinner } from './components/common/LoadingSpinner';
 
 const AppRoutes: React.FC = () => {
   const { isAuthenticated, user, isLoading, pendingEmailConfirmation } = useAuth();
+  const location = useLocation();
+
+  const params = new URLSearchParams(location.search);
+  const isPasswordResetFlow =
+    params.get('reset') === 'true' || params.get('force_logout') === 'true';
 
   if (isLoading) {
     return (
@@ -24,7 +29,7 @@ const AppRoutes: React.FC = () => {
       <Route
         path="/auth"
         element={
-          isAuthenticated && !pendingEmailConfirmation ? (
+          isAuthenticated && !pendingEmailConfirmation && !isPasswordResetFlow ? (
             <Navigate to="/dashboard" replace />
           ) : (
             <AuthPage />

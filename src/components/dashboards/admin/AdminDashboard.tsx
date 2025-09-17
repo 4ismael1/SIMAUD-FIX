@@ -134,9 +134,25 @@ export const AdminDashboard: React.FC = () => {
       case 'profile':
         return <UserProfile />;
       case 'dashboard':
-        return <DashboardHome data={dashboardData} loading={loading} error={error} onRefresh={loadDashboardData} />;
+        return (
+          <DashboardHome
+            data={dashboardData}
+            loading={loading}
+            error={error}
+            onRefresh={loadDashboardData}
+            onNavigate={(view) => setCurrentView(view)}
+          />
+        );
       default:
-        return <DashboardHome data={dashboardData} loading={loading} error={error} onRefresh={loadDashboardData} />;
+        return (
+          <DashboardHome
+            data={dashboardData}
+            loading={loading}
+            error={error}
+            onRefresh={loadDashboardData}
+            onNavigate={(view) => setCurrentView(view)}
+          />
+        );
     }
   };
 
@@ -314,13 +330,14 @@ export const AdminDashboard: React.FC = () => {
 };
 
 // Dashboard Home Component
-const DashboardHome: React.FC<{ 
-  data: any; 
-  loading: boolean; 
-  error: string; 
-  onRefresh: () => void; 
-}> = ({ data, loading, error, onRefresh }) => {
-  const [currentView, setCurrentView] = useState<'overview' | 'charts'>('overview');
+const DashboardHome: React.FC<{
+  data: any;
+  loading: boolean;
+  error: string;
+  onRefresh: () => void;
+  onNavigate: (view: AdminView) => void;
+}> = ({ data, loading, error, onRefresh, onNavigate }) => {
+  const [activeTab, setActiveTab] = useState<'overview' | 'charts'>('overview');
 
   if (loading) {
     return (
@@ -400,9 +417,9 @@ const DashboardHome: React.FC<{
       <div className="flex items-center justify-between">
         <div className="flex space-x-4">
           <button
-            onClick={() => setCurrentView('overview')}
+            onClick={() => setActiveTab('overview')}
             className={`px-4 py-2 rounded-lg font-medium transition-colors duration-200 ${
-              currentView === 'overview'
+              activeTab === 'overview'
                 ? 'bg-blue-100 text-blue-700'
                 : 'text-gray-600 hover:text-gray-900'
             }`}
@@ -410,9 +427,9 @@ const DashboardHome: React.FC<{
             Resumen
           </button>
           <button
-            onClick={() => setCurrentView('charts')}
+            onClick={() => setActiveTab('charts')}
             className={`px-4 py-2 rounded-lg font-medium transition-colors duration-200 ${
-              currentView === 'charts'
+              activeTab === 'charts'
                 ? 'bg-blue-100 text-blue-700'
                 : 'text-gray-600 hover:text-gray-900'
             }`}
@@ -467,7 +484,7 @@ const DashboardHome: React.FC<{
         })}
       </div>
 
-      {currentView === 'overview' ? (
+      {activeTab === 'overview' ? (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Quick Actions */}
           <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
@@ -476,7 +493,7 @@ const DashboardHome: React.FC<{
               <motion.button
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
-                onClick={() => setCurrentView('users')}
+                onClick={() => onNavigate('users')}
                 className="w-full flex items-center space-x-3 p-3 rounded-lg border border-gray-200 hover:border-blue-300 hover:bg-blue-50 transition-all duration-200 text-blue-600"
               >
                 <Plus className="w-5 h-5" />
@@ -485,7 +502,7 @@ const DashboardHome: React.FC<{
               <motion.button
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
-                onClick={() => setCurrentView('contracts')}
+                onClick={() => onNavigate('contracts')}
                 className="w-full flex items-center space-x-3 p-3 rounded-lg border border-gray-200 hover:border-green-300 hover:bg-green-50 transition-all duration-200 text-green-600"
               >
                 <FileText className="w-5 h-5" />
@@ -494,7 +511,7 @@ const DashboardHome: React.FC<{
               <motion.button
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
-                onClick={() => setCurrentView('reports')}
+                onClick={() => onNavigate('reports')}
                 className="w-full flex items-center space-x-3 p-3 rounded-lg border border-gray-200 hover:border-purple-300 hover:bg-purple-50 transition-all duration-200 text-purple-600"
               >
                 <BarChart3 className="w-5 h-5" />
@@ -503,7 +520,7 @@ const DashboardHome: React.FC<{
               <motion.button
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
-                onClick={() => setCurrentView('approvals')}
+                onClick={() => onNavigate('approvals')}
                 className="w-full flex items-center space-x-3 p-3 rounded-lg border border-gray-200 hover:border-orange-300 hover:bg-orange-50 transition-all duration-200 text-orange-600"
               >
                 <Bell className="w-5 h-5" />

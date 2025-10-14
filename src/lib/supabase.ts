@@ -4,22 +4,24 @@ const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
 if (!supabaseUrl || !supabaseKey) {
-  console.error('❌ Missing Supabase environment variables:');
-  console.error('VITE_SUPABASE_URL:', supabaseUrl ? '✓ Set' : '❌ Missing');
-  console.error('VITE_SUPABASE_ANON_KEY:', supabaseKey ? '✓ Set' : '❌ Missing');
-  throw new Error('Missing Supabase environment variables. Please check your .env file.');
+  console.error('[Supabase] Missing environment variables:');
+  console.error(`  VITE_SUPABASE_URL: ${supabaseUrl ? '(set)' : '(missing)'}`);
+  console.error(`  VITE_SUPABASE_ANON_KEY: ${supabaseKey ? '(set)' : '(missing)'}`);
+  throw new Error(
+    'Missing Supabase environment variables. Please check your .env file (see .env.example).',
+  );
 }
 
-console.log('✅ Supabase client initialized');
-console.log('URL:', supabaseUrl);
+console.info('[Supabase] Client initialized.');
+console.info(`[Supabase] URL: ${supabaseUrl}`);
 
 export const supabase = createClient(supabaseUrl, supabaseKey, {
   auth: {
     autoRefreshToken: true,
     persistSession: true,
     detectSessionInUrl: true,
-    storageKey: 'simaud-auth'
-  }
+    storageKey: 'simaud-auth',
+  },
 });
 
 // Types for our database

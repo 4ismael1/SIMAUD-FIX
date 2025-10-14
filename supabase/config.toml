@@ -1,0 +1,27 @@
+project_id = "simaud-local"
+organization_id = "self_hosted"
+
+[api]
+port = 54321
+schemas = ["public", "storage", "graphql_public"]
+extra_search_path = ["extensions"]
+max_rows = 1000
+
+[db]
+major_version = 15
+port = 54322
+shadow_port = 54329
+password = "postgres"
+branch = "main"
+
+[studio]
+port = 54323
+
+[inbucket]
+port = 54324
+
+[storage]
+port = 54326
+
+[realtime]
+port = 54325

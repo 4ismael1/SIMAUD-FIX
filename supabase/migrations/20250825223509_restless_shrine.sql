@@ -42,12 +42,14 @@ CREATE UNIQUE INDEX IF NOT EXISTS user_profiles_cedula_key ON user_profiles(cedu
 ALTER TABLE user_profiles ENABLE ROW LEVEL SECURITY;
 
 -- Recrear políticas RLS
+DROP POLICY IF EXISTS "Users can read own profile" ON user_profiles;
 CREATE POLICY "Users can read own profile"
   ON user_profiles
   FOR SELECT
   TO authenticated
   USING (auth.uid() = id);
 
+DROP POLICY IF EXISTS "Users can update own profile" ON user_profiles;
 CREATE POLICY "Users can update own profile"
   ON user_profiles
   FOR UPDATE
@@ -55,12 +57,14 @@ CREATE POLICY "Users can update own profile"
   USING (auth.uid() = id)
   WITH CHECK (auth.uid() = id);
 
+DROP POLICY IF EXISTS "Allow profile creation during signup" ON user_profiles;
 CREATE POLICY "Allow profile creation during signup"
   ON user_profiles
   FOR INSERT
   TO anon, authenticated
   WITH CHECK (true);
 
+DROP POLICY IF EXISTS "Admins can read all profiles" ON user_profiles;
 CREATE POLICY "Admins can read all profiles"
   ON user_profiles
   FOR SELECT
